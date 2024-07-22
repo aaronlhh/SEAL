@@ -226,14 +226,13 @@ namespace seal
 {
     namespace util
     {
-        NTTTables::NTTTables(int coeff_count_power, const Modulus &modulus, MemoryPoolHandle pool)
-            : pool_(std::move(pool))
+        NTTTables::NTTTables(int coeff_count_power, const Modulus &modulus)
         {
 #ifdef SEAL_DEBUG
-            if (!pool_)
-            {
-                throw invalid_argument("pool is uninitialized");
-            }
+            // if (!pool_)
+            // {
+            //     throw invalid_argument("pool is uninitialized");
+            // }
 #endif
             initialize(coeff_count_power, modulus);
         }
@@ -266,7 +265,7 @@ namespace seal
 #endif
 
             // Populate tables with powers of root in specific orders.
-            root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_, pool_);
+            root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_);
             MultiplyUIntModOperand root;
             root.set(root_, modulus_);
             uint64_t power = root_;
@@ -277,7 +276,7 @@ namespace seal
             }
             root_powers_[0].set(static_cast<uint64_t>(1), modulus_);
 
-            inv_root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_, pool_);
+            inv_root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_);
             root.set(inv_root_, modulus_);
             power = inv_root_;
             for (size_t i = 1; i < coeff_count_; i++)
@@ -316,8 +315,8 @@ namespace seal
             {}
 
             // Other constructors
-            NTTTablesCreateIter(int coeff_count_power, vector<Modulus> modulus, MemoryPoolHandle pool)
-                : coeff_count_power_(coeff_count_power), modulus_(modulus), pool_(std::move(pool))
+            NTTTablesCreateIter(int coeff_count_power, vector<Modulus> modulus)
+                : coeff_count_power_(coeff_count_power), modulus_(modulus)
             {}
 
             // Require copy and move constructors and assignments
@@ -332,7 +331,7 @@ namespace seal
             // Dereferencing creates NTTTables and returns by value
             inline value_type operator*() const
             {
-                return { coeff_count_power_, modulus_[index_], pool_ };
+                return { coeff_count_power_, modulus_[index_] };
             }
 
             // Pre-increment
@@ -371,24 +370,24 @@ namespace seal
             size_t index_ = 0;
             int coeff_count_power_ = 0;
             vector<Modulus> modulus_;
-            MemoryPoolHandle pool_;
+            // MemoryPoolHandle pool_;
         };
 
         void CreateNTTTables(
-            int coeff_count_power, const vector<Modulus> &modulus, Pointer<NTTTables> &tables, MemoryPoolHandle pool)
+            int coeff_count_power, const vector<Modulus> &modulus, Pointer<NTTTables> &tables)
         {
-            if (!pool)
-            {
-                throw invalid_argument("pool is uninitialized");
-            }
+            // if (!pool)
+            // {
+            //     throw invalid_argument("pool is uninitialized");
+            // }
             if (!modulus.size())
             {
                 throw invalid_argument("invalid modulus");
             }
             // coeff_count_power and modulus will be validated by "allocate"
 
-            NTTTablesCreateIter iter(coeff_count_power, modulus, pool);
-            tables = allocate(iter, modulus.size(), pool);
+            NTTTablesCreateIter iter(coeff_count_power, modulus);
+            tables = allocate(iter, modulus.size());
         }
 
         void ntt_negacyclic_harvey_lazy(CoeffIter operand, const NTTTables &tables)

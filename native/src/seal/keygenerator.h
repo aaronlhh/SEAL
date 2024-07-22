@@ -9,7 +9,7 @@
 #include "seal/publickey.h"
 #include "seal/relinkeys.h"
 #include "seal/secretkey.h"
-#include "seal/serializable.h"
+// #include "seal/serializable.h"
 #include "seal/util/defines.h"
 #include "seal/util/iterator.h"
 #include <random>
@@ -79,10 +79,10 @@ namespace seal
         directly and is meant to be serialized for the size reduction to have an
         impact.
         */
-        SEAL_NODISCARD inline Serializable<PublicKey> create_public_key() const
-        {
-            return generate_pk(true);
-        }
+        // SEAL_NODISCARD inline Serializable<PublicKey> create_public_key() const
+        // {
+        //     return generate_pk(true);
+        // }
 
         /**
         Generates relinearization keys and stores the result in destination.
@@ -112,10 +112,10 @@ namespace seal
         @throws std::logic_error if the encryption parameters do not support
         keyswitching
         */
-        SEAL_NODISCARD inline Serializable<RelinKeys> create_relin_keys()
-        {
-            return create_relin_keys(1, true);
-        }
+        // SEAL_NODISCARD inline Serializable<RelinKeys> create_relin_keys()
+        // {
+        //     return create_relin_keys(1, true);
+        // }
 
         /**
         Generates Galois keys and stores the result in destination. Every time
@@ -175,10 +175,10 @@ namespace seal
         keyswitching
         @throws std::invalid_argument if the Galois elements are not valid
         */
-        SEAL_NODISCARD inline Serializable<GaloisKeys> create_galois_keys(const std::vector<std::uint32_t> &galois_elts)
-        {
-            return create_galois_keys(galois_elts, true);
-        }
+        // SEAL_NODISCARD inline Serializable<GaloisKeys> create_galois_keys(const std::vector<std::uint32_t> &galois_elts)
+        // {
+        //     return create_galois_keys(galois_elts, true);
+        // }
 
         /**
         Generates Galois keys and stores the result in destination. Every time
@@ -230,14 +230,14 @@ namespace seal
         keyswitching
         @throws std::invalid_argument if the step counts are not valid
         */
-        SEAL_NODISCARD inline Serializable<GaloisKeys> create_galois_keys(const std::vector<int> &steps)
-        {
-            if (!context_.key_context_data()->qualifiers().using_batching)
-            {
-                throw std::logic_error("encryption parameters do not support batching");
-            }
-            return create_galois_keys(context_.key_context_data()->galois_tool()->get_elts_from_steps(steps));
-        }
+        // SEAL_NODISCARD inline Serializable<GaloisKeys> create_galois_keys(const std::vector<int> &steps)
+        // {
+        //     if (!context_.key_context_data()->qualifiers().using_batching)
+        //     {
+        //         throw std::logic_error("encryption parameters do not support batching");
+        //     }
+        //     return create_galois_keys(context_.key_context_data()->galois_tool()->get_elts_from_steps(steps));
+        // }
 
         /**
         Generates Galois keys and stores the result in destination. Every time
@@ -285,10 +285,10 @@ namespace seal
         @throws std::logic_error if the encryption parameters do not support
         keyswitching
         */
-        SEAL_NODISCARD inline Serializable<GaloisKeys> create_galois_keys()
-        {
-            return create_galois_keys(context_.key_context_data()->galois_tool()->get_elts_all());
-        }
+        // SEAL_NODISCARD inline Serializable<GaloisKeys> create_galois_keys()
+        // {
+        //     return create_galois_keys(context_.key_context_data()->galois_tool()->get_elts_all());
+        // }
 
         /**
         Enables access to private members of seal::KeyGenerator for SEAL_C.

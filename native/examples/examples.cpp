@@ -25,6 +25,7 @@ int main()
         cout << "| 6. Rotation                | 6_rotation.cpp             |" << endl;
         cout << "| 7. Serialization           | 7_serialization.cpp        |" << endl;
         cout << "| 8. Performance Test        | 8_performance.cpp          |" << endl;
+        cout << "|                  Only 1 - 3 available                   |" << endl;
         cout << "+----------------------------+----------------------------+" << endl;
 
         /*
@@ -76,25 +77,25 @@ int main()
             example_levels();
             break;
 
-        case 4:
-            example_bgv_basics();
-            break;
+        // case 4:
+        //     example_bgv_basics();
+        //     break;
 
-        case 5:
-            example_ckks_basics();
-            break;
+        // case 5:
+        //     example_ckks_basics();
+        //     break;
 
-        case 6:
-            example_rotation();
-            break;
+        // case 6:
+        //     example_rotation();
+        //     break;
 
-        case 7:
-            example_serialization();
-            break;
+        // case 7:
+        //     example_serialization();
+        //     break;
 
-        case 8:
-            example_performance_test();
-            break;
+        // case 8:
+        //     example_performance_test();
+        //     break;
 
         case 0:
             return 0;

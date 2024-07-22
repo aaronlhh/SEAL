@@ -74,7 +74,10 @@ namespace seal
         /**
         Creates a new uninitialized MemoryPoolHandle.
         */
-        MemoryPoolHandle() = default;
+       
+       
+
+       
 
         /**
         Creates a MemoryPoolHandle pointing to a given MemoryPool object.

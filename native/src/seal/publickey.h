@@ -86,11 +86,11 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD inline std::streamoff save_size(
-            compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            return pk_.save_size(compr_mode);
-        }
+        // SEAL_NODISCARD inline std::streamoff save_size(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     return pk_.save_size(compr_mode);
+        // }
 
         /**
         Saves the PublicKey to an output stream. The output is in binary format
@@ -103,11 +103,11 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            return pk_.save(stream, compr_mode);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     return pk_.save(stream, compr_mode);
+        // }
 
         /**
         Loads a PublicKey from an input stream overwriting the current PublicKey.
@@ -122,13 +122,13 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
-        {
-            Ciphertext new_pk(pk_.pool());
-            auto in_size = new_pk.unsafe_load(context, stream);
-            std::swap(pk_, new_pk);
-            return in_size;
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
+        // {
+        //     Ciphertext new_pk(pk_.pool());
+        //     auto in_size = new_pk.unsafe_load(context, stream);
+        //     std::swap(pk_, new_pk);
+        //     return in_size;
+        // }
 
         /**
         Loads a PublicKey from an input stream overwriting the current PublicKey.
@@ -141,17 +141,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, std::istream &stream)
-        {
-            PublicKey new_pk(pool());
-            auto in_size = new_pk.unsafe_load(context, stream);
-            if (!is_valid_for(new_pk, context))
-            {
-                throw std::logic_error("PublicKey data is invalid");
-            }
-            std::swap(*this, new_pk);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, std::istream &stream)
+        // {
+        //     PublicKey new_pk(pool());
+        //     auto in_size = new_pk.unsafe_load(context, stream);
+        //     if (!is_valid_for(new_pk, context))
+        //     {
+        //         throw std::logic_error("PublicKey data is invalid");
+        //     }
+        //     std::swap(*this, new_pk);
+        //     return in_size;
+        // }
 
         /**
         Saves the PublicKey to a given memory location. The output is in binary
@@ -166,11 +166,11 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            return pk_.save(out, size, compr_mode);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     return pk_.save(out, size, compr_mode);
+        // }
 
         /**
         Loads a PublicKey from a given memory location overwriting the current
@@ -188,13 +188,13 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            Ciphertext new_pk(pk_.pool());
-            auto in_size = new_pk.unsafe_load(context, in, size);
-            std::swap(pk_, new_pk);
-            return in_size;
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     Ciphertext new_pk(pk_.pool());
+        //     auto in_size = new_pk.unsafe_load(context, in, size);
+        //     std::swap(pk_, new_pk);
+        //     return in_size;
+        // }
 
         /**
         Loads a PublicKey from a given memory location overwriting the current
@@ -211,17 +211,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            PublicKey new_pk(pool());
-            auto in_size = new_pk.unsafe_load(context, in, size);
-            if (!is_valid_for(new_pk, context))
-            {
-                throw std::logic_error("PublicKey data is invalid");
-            }
-            std::swap(*this, new_pk);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     PublicKey new_pk(pool());
+        //     auto in_size = new_pk.unsafe_load(context, in, size);
+        //     if (!is_valid_for(new_pk, context))
+        //     {
+        //         throw std::logic_error("PublicKey data is invalid");
+        //     }
+        //     std::swap(*this, new_pk);
+        //     return in_size;
+        // }
 
         /**
         Returns a reference to parms_id.
@@ -242,10 +242,10 @@ namespace seal
         /**
         Returns the currently used MemoryPoolHandle.
         */
-        SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
-        {
-            return pk_.pool();
-        }
+        // SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
+        // {
+        //     return pk_.pool();
+        // }
 
         /**
         Enables access to private members of seal::PublicKey for SEAL_C.
@@ -260,8 +260,8 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        PublicKey(MemoryPoolHandle pool) : pk_(std::move(pool))
-        {}
+        // PublicKey(MemoryPoolHandle pool) : pk_(std::move(pool))
+        // {}
 
         Ciphertext pk_;
     };

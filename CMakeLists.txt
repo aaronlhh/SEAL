@@ -160,7 +160,7 @@ endif()
 
 # [option] SEAL_USE_ZLIB (default: ON)
 set(SEAL_USE_ZLIB_OPTION_STR "Use ZLIB for compressed serialization")
-option(SEAL_USE_ZLIB ${SEAL_USE_ZLIB_OPTION_STR} ON)
+option(SEAL_USE_ZLIB ${SEAL_USE_ZLIB_OPTION_STR} OFF)
 message(STATUS "SEAL_USE_ZLIB: ${SEAL_USE_ZLIB}")
 
 if(SEAL_USE_ZLIB)
@@ -181,7 +181,7 @@ endif()
 
 # [option] SEAL_USE_ZSTD (default: ON)
 set(SEAL_USE_ZSTD_OPTION_STR "Use Zstandard for compressed serialization")
-option(SEAL_USE_ZSTD ${SEAL_USE_ZSTD_OPTION_STR} ON)
+option(SEAL_USE_ZSTD ${SEAL_USE_ZSTD_OPTION_STR} OFF)
 message(STATUS "SEAL_USE_ZSTD: ${SEAL_USE_ZSTD}")
 
 if(SEAL_USE_ZSTD)

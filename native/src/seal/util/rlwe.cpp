@@ -301,14 +301,14 @@ namespace seal
             // the size of UniformRandomGeneratorInfo plus one (uint64_t) because
             // of an indicator word that indicates a seeded ciphertext.
             size_t poly_uint64_count = mul_safe(coeff_count, coeff_modulus_size);
-            size_t prng_info_byte_count =
-                static_cast<size_t>(UniformRandomGeneratorInfo::SaveSize(compr_mode_type::none));
-            size_t prng_info_uint64_count =
-                divide_round_up(prng_info_byte_count, static_cast<size_t>(bytes_per_uint64));
-            if (save_seed && poly_uint64_count < prng_info_uint64_count + 1)
-            {
-                save_seed = false;
-            }
+            // size_t prng_info_byte_count =
+            //     static_cast<size_t>(UniformRandomGeneratorInfo::SaveSize(compr_mode_type::none));
+            // size_t prng_info_uint64_count =
+            //     divide_round_up(prng_info_byte_count, static_cast<size_t>(bytes_per_uint64));
+            // if (save_seed && poly_uint64_count < prng_info_uint64_count + 1)
+            // {
+            //     save_seed = false;
+            // }
 
             destination.resize(context, parms_id, encrypted_size);
             destination.is_ntt_form() = is_ntt_form;
@@ -397,11 +397,11 @@ namespace seal
 
             if (save_seed)
             {
-                UniformRandomGeneratorInfo prng_info = ciphertext_prng->info();
+                // UniformRandomGeneratorInfo prng_info = ciphertext_prng->info();
 
-                // Write prng_info to destination.data(1) after an indicator word
-                c1[0] = static_cast<uint64_t>(0xFFFFFFFFFFFFFFFFULL);
-                prng_info.save(reinterpret_cast<seal_byte *>(c1 + 1), prng_info_byte_count, compr_mode_type::none);
+                // // Write prng_info to destination.data(1) after an indicator word
+                // c1[0] = static_cast<uint64_t>(0xFFFFFFFFFFFFFFFFULL);
+                // prng_info.save(reinterpret_cast<seal_byte *>(c1 + 1), prng_info_byte_count, compr_mode_type::none);
             }
         }
     } // namespace util

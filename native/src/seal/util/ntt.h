@@ -75,17 +75,17 @@ namespace seal
             NTTTables(NTTTables &&source) = default;
 
             NTTTables(NTTTables &copy)
-                : pool_(copy.pool_), root_(copy.root_), coeff_count_power_(copy.coeff_count_power_),
+                : root_(copy.root_), coeff_count_power_(copy.coeff_count_power_),
                   coeff_count_(copy.coeff_count_), modulus_(copy.modulus_), inv_degree_modulo_(copy.inv_degree_modulo_)
             {
-                root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_, pool_);
-                inv_root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_, pool_);
+                root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_);
+                inv_root_powers_ = allocate<MultiplyUIntModOperand>(coeff_count_);
 
                 std::copy_n(copy.root_powers_.get(), coeff_count_, root_powers_.get());
                 std::copy_n(copy.inv_root_powers_.get(), coeff_count_, inv_root_powers_.get());
             }
 
-            NTTTables(int coeff_count_power, const Modulus &modulus, MemoryPoolHandle pool = MemoryManager::GetPool());
+            NTTTables(int coeff_count_power, const Modulus &modulus);
 
             SEAL_NODISCARD inline std::uint64_t get_root() const
             {
@@ -156,8 +156,6 @@ namespace seal
 
             void initialize(int coeff_count_power, const Modulus &modulus);
 
-            MemoryPoolHandle pool_;
-
             std::uint64_t root_ = 0;
 
             std::uint64_t inv_root_ = 0;
@@ -189,8 +187,7 @@ namespace seal
         or pool is uninitialized.
         */
         void CreateNTTTables(
-            int coeff_count_power, const std::vector<Modulus> &modulus, Pointer<NTTTables> &tables,
-            MemoryPoolHandle pool);
+            int coeff_count_power, const std::vector<Modulus> &modulus, Pointer<NTTTables> &tables);
 
         void ntt_negacyclic_harvey_lazy(CoeffIter operand, const NTTTables &tables);
 

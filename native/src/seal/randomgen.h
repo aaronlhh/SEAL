@@ -188,13 +188,13 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD static inline std::streamoff SaveSize(
-            compr_mode_type compr_mode = Serialization::compr_mode_default)
-        {
-            std::size_t members_size =
-                Serialization::ComprSizeEstimate(sizeof(prng_type) + prng_seed_byte_count, compr_mode);
-            return static_cast<std::streamoff>(sizeof(Serialization::SEALHeader) + members_size);
-        }
+        // SEAL_NODISCARD static inline std::streamoff SaveSize(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default)
+        // {
+        //     std::size_t members_size =
+        //         Serialization::ComprSizeEstimate(sizeof(prng_type) + prng_seed_byte_count, compr_mode);
+        //     return static_cast<std::streamoff>(sizeof(Serialization::SEALHeader) + members_size);
+        // }
 
         /**
         Returns an upper bound on the size of the UniformRandomGeneratorInfo, as
@@ -204,11 +204,11 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD inline std::streamoff save_size(
-            compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            return UniformRandomGeneratorInfo::SaveSize(compr_mode);
-        }
+        // SEAL_NODISCARD inline std::streamoff save_size(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     return UniformRandomGeneratorInfo::SaveSize(compr_mode);
+        // }
 
         /**
         Saves the UniformRandomGeneratorInfo to an output stream. The output is
@@ -222,14 +222,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&UniformRandomGeneratorInfo::save_members, this, _1), save_size(compr_mode_type::none),
-                stream, compr_mode, true);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&UniformRandomGeneratorInfo::save_members, this, _1), save_size(compr_mode_type::none),
+        //         stream, compr_mode, true);
+        // }
 
         /**
         Loads a UniformRandomGeneratorInfo from an input stream overwriting the
@@ -240,15 +240,15 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(std::istream &stream)
-        {
-            using namespace std::placeholders;
-            UniformRandomGeneratorInfo new_info;
-            auto in_size = Serialization::Load(
-                std::bind(&UniformRandomGeneratorInfo::load_members, &new_info, _1, _2), stream, true);
-            std::swap(*this, new_info);
-            return in_size;
-        }
+        // inline std::streamoff load(std::istream &stream)
+        // {
+        //     using namespace std::placeholders;
+        //     UniformRandomGeneratorInfo new_info;
+        //     auto in_size = Serialization::Load(
+        //         std::bind(&UniformRandomGeneratorInfo::load_members, &new_info, _1, _2), stream, true);
+        //     std::swap(*this, new_info);
+        //     return in_size;
+        // }
 
         /**
         Saves the UniformRandomGeneratorInfo to a given memory location. The output
@@ -263,14 +263,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&UniformRandomGeneratorInfo::save_members, this, _1), save_size(compr_mode_type::none), out,
-                size, compr_mode, true);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&UniformRandomGeneratorInfo::save_members, this, _1), save_size(compr_mode_type::none), out,
+        //         size, compr_mode, true);
+        // }
 
         /**
         Loads a UniformRandomGeneratorInfo from a given memory location overwriting
@@ -284,20 +284,20 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const seal_byte *in, std::size_t size)
-        {
-            using namespace std::placeholders;
-            UniformRandomGeneratorInfo new_info;
-            auto in_size = Serialization::Load(
-                std::bind(&UniformRandomGeneratorInfo::load_members, &new_info, _1, _2), in, size, true);
-            std::swap(*this, new_info);
-            return in_size;
-        }
+        // inline std::streamoff load(const seal_byte *in, std::size_t size)
+        // {
+        //     using namespace std::placeholders;
+        //     UniformRandomGeneratorInfo new_info;
+        //     auto in_size = Serialization::Load(
+        //         std::bind(&UniformRandomGeneratorInfo::load_members, &new_info, _1, _2), in, size, true);
+        //     std::swap(*this, new_info);
+        //     return in_size;
+        // }
 
     public:
-        void save_members(std::ostream &stream) const;
+        // void save_members(std::ostream &stream) const;
 
-        void load_members(std::istream &stream, SEALVersion version);
+        // void load_members(std::istream &stream, SEALVersion version);
 
         prng_type type_ = prng_type::unknown;
 
@@ -321,14 +321,13 @@ namespace seal
         UniformRandomGenerator(prng_seed_type seed)
             : seed_([&seed]() {
                   // Create a new seed allocation
-                  DynArray<std::uint64_t> new_seed(
-                      seed.size(), MemoryManager::GetPool(mm_prof_opt::mm_force_new, true));
+                  DynArray<std::uint64_t> new_seed(seed.size());
 
                   // Assign the given seed and return
                   std::copy(seed.cbegin(), seed.cend(), new_seed.begin());
                   return new_seed;
               }()),
-              buffer_(buffer_size_, MemoryManager::GetPool(mm_prof_opt::mm_force_new, true)),
+              buffer_(buffer_size_),
               buffer_begin_(buffer_.begin()), buffer_end_(buffer_.end()), buffer_head_(buffer_.end())
         {}
 

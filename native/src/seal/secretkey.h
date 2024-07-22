@@ -74,7 +74,7 @@ namespace seal
         */
         SecretKey &operator=(const SecretKey &assign)
         {
-            Plaintext new_sk(MemoryManager::GetPool(mm_prof_opt::mm_force_new, true));
+            Plaintext new_sk;
             new_sk = assign.sk_;
             std::swap(sk_, new_sk);
             return *this;
@@ -111,11 +111,11 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD inline std::streamoff save_size(
-            compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            return sk_.save_size(compr_mode);
-        }
+        // SEAL_NODISCARD inline std::streamoff save_size(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     return sk_.save_size(compr_mode);
+        // }
 
         /**
         Saves the SecretKey to an output stream. The output is in binary format
@@ -128,14 +128,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&Plaintext::save_members, &sk_, _1), sk_.save_size(compr_mode_type::none), stream, compr_mode,
-                true);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&Plaintext::save_members, &sk_, _1), sk_.save_size(compr_mode_type::none), stream, compr_mode,
+        //         true);
+        // }
 
         /**
         Loads a SecretKey from an input stream overwriting the current SecretKey.
@@ -150,17 +150,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
-        {
-            using namespace std::placeholders;
+        // inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
+        // {
+        //     using namespace std::placeholders;
 
-            // We use a fresh memory pool with `clear_on_destruction' enabled.
-            Plaintext new_sk(MemoryManager::GetPool(mm_prof_opt::mm_force_new, true));
-            auto in_size = Serialization::Load(
-                std::bind(&Plaintext::load_members, &new_sk, std::move(context), _1, _2), stream, true);
-            std::swap(sk_, new_sk);
-            return in_size;
-        }
+        //     // We use a fresh memory pool with `clear_on_destruction' enabled.
+        //     Plaintext new_sk(MemoryManager::GetPool(mm_prof_opt::mm_force_new, true));
+        //     auto in_size = Serialization::Load(
+        //         std::bind(&Plaintext::load_members, &new_sk, std::move(context), _1, _2), stream, true);
+        //     std::swap(sk_, new_sk);
+        //     return in_size;
+        // }
 
         /**
         Loads a SecretKey from an input stream overwriting the current SecretKey.
@@ -173,17 +173,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, std::istream &stream)
-        {
-            SecretKey new_sk;
-            auto in_size = new_sk.unsafe_load(context, stream);
-            if (!is_valid_for(new_sk, context))
-            {
-                throw std::logic_error("SecretKey data is invalid");
-            }
-            std::swap(*this, new_sk);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, std::istream &stream)
+        // {
+        //     SecretKey new_sk;
+        //     auto in_size = new_sk.unsafe_load(context, stream);
+        //     if (!is_valid_for(new_sk, context))
+        //     {
+        //         throw std::logic_error("SecretKey data is invalid");
+        //     }
+        //     std::swap(*this, new_sk);
+        //     return in_size;
+        // }
 
         /**
         Saves the SecretKey to a given memory location. The output is in binary
@@ -198,14 +198,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&Plaintext::save_members, &sk_, _1), sk_.save_size(compr_mode_type::none), out, size,
-                compr_mode, true);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&Plaintext::save_members, &sk_, _1), sk_.save_size(compr_mode_type::none), out, size,
+        //         compr_mode, true);
+        // }
 
         /**
         Loads a SecretKey from a given memory location overwriting the current
@@ -223,17 +223,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            using namespace std::placeholders;
+        // inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     using namespace std::placeholders;
 
-            // We use a fresh memory pool with `clear_on_destruction' enabled.
-            Plaintext new_sk(MemoryManager::GetPool(mm_prof_opt::mm_force_new, true));
-            auto in_size = Serialization::Load(
-                std::bind(&Plaintext::load_members, &new_sk, std::move(context), _1, _2), in, size, true);
-            std::swap(sk_, new_sk);
-            return in_size;
-        }
+        //     // We use a fresh memory pool with `clear_on_destruction' enabled.
+        //     Plaintext new_sk(MemoryManager::GetPool(mm_prof_opt::mm_force_new, true));
+        //     auto in_size = Serialization::Load(
+        //         std::bind(&Plaintext::load_members, &new_sk, std::move(context), _1, _2), in, size, true);
+        //     std::swap(sk_, new_sk);
+        //     return in_size;
+        // }
 
         /**
         Loads a SecretKey from a given memory location overwriting the current
@@ -250,17 +250,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            SecretKey new_sk;
-            auto in_size = new_sk.unsafe_load(context, in, size);
-            if (!is_valid_for(new_sk, context))
-            {
-                throw std::logic_error("SecretKey data is invalid");
-            }
-            std::swap(*this, new_sk);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     SecretKey new_sk;
+        //     auto in_size = new_sk.unsafe_load(context, in, size);
+        //     if (!is_valid_for(new_sk, context))
+        //     {
+        //         throw std::logic_error("SecretKey data is invalid");
+        //     }
+        //     std::swap(*this, new_sk);
+        //     return in_size;
+        // }
 
         /**
         Returns a reference to parms_id.
@@ -285,13 +285,13 @@ namespace seal
         /**
         Returns the currently used MemoryPoolHandle.
         */
-        SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
-        {
-            return sk_.pool();
-        }
+        // SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
+        // {
+        //     return sk_.pool();
+        // }
 
     private:
         // We use a fresh memory pool with `clear_on_destruction' enabled.
-        Plaintext sk_{ MemoryManager::GetPool(mm_prof_opt::mm_force_new, true) };
+        Plaintext sk_;
     };
 } // namespace seal

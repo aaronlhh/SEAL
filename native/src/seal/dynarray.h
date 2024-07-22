@@ -4,7 +4,7 @@
 #pragma once
 
 #include "seal/memorymanager.h"
-#include "seal/serialization.h"
+// #include "seal/serialization.h"
 #include "seal/version.h"
 #include "seal/util/common.h"
 #include "seal/util/defines.h"
@@ -61,13 +61,8 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        DynArray(MemoryPoolHandle pool = MemoryManager::GetPool()) : pool_(std::move(pool))
-        {
-            if (!pool_)
-            {
-                throw std::invalid_argument("pool is uninitialized");
-            }
-        }
+        DynArray() 
+        {}
 
         /**
         Creates a new DynArray with given size.
@@ -76,13 +71,8 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit DynArray(std::size_t size, MemoryPoolHandle pool = MemoryManager::GetPool()) : pool_(std::move(pool))
+        explicit DynArray(std::size_t size)
         {
-            if (!pool_)
-            {
-                throw std::invalid_argument("pool is uninitialized");
-            }
-
             // Reserve memory, resize, and set to zero
             resize(size);
         }
@@ -96,13 +86,8 @@ namespace seal
         @throws std::invalid_argument if capacity is less than size
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit DynArray(std::size_t capacity, std::size_t size, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : pool_(std::move(pool))
+        explicit DynArray(std::size_t capacity, std::size_t size)
         {
-            if (!pool_)
-            {
-                throw std::invalid_argument("pool is uninitialized");
-            }
             if (capacity < size)
             {
                 throw std::invalid_argument("capacity cannot be smaller than size");
@@ -132,17 +117,12 @@ namespace seal
         @throws std::invalid_argument if pool is uninitialized
         */
         explicit DynArray(
-            util::Pointer<T> &&ptr, std::size_t capacity, std::size_t size, bool fill_zero,
-            MemoryPoolHandle pool = MemoryManager::GetPool())
-            : pool_(std::move(pool)), capacity_(capacity)
+            T **ptr, std::size_t capacity, std::size_t size, bool fill_zero)
+            : capacity_(capacity)
         {
             if (!ptr && capacity)
             {
                 throw std::invalid_argument("ptr cannot be null");
-            }
-            if (!pool_)
-            {
-                throw std::invalid_argument("pool is uninitialized");
             }
             if (capacity < size)
             {
@@ -172,9 +152,8 @@ namespace seal
         @throws std::invalid_argument if ptr is null and size is positive
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit DynArray(
-            util::Pointer<T> &&ptr, std::size_t size, bool fill_zero, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : DynArray(std::move(ptr), size, size, fill_zero, std::move(pool))
+        explicit DynArray(T **ptr, std::size_t size, bool fill_zero)
+            : DynArray(std::move(ptr), size, size, fill_zero)
         {}
 #ifdef SEAL_USE_MSGSL
         /**
@@ -188,10 +167,10 @@ namespace seal
         @throws std::invalid_argument if pool is uninitialized
         */
         explicit DynArray(
-            gsl::span<const T> values, std::size_t capacity, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : DynArray(capacity, values.size(), std::move(pool))
-        {
-            std::copy(values.begin(), values.end(), data_.get());
+            gsl::span<const T> values, std::size_t capacity)
+            : DynArray(capacity, values.size())
+        {  
+            std::copy(values.begin(), values.end(), data_);
         }
 
         /**
@@ -201,8 +180,8 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit DynArray(gsl::span<const T> values, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : DynArray(values, values.size(), std::move(pool))
+        explicit DynArray(gsl::span<const T> values)
+            : DynArray(values, values.size())
         {}
 #endif
         /**
@@ -211,9 +190,9 @@ namespace seal
         @param[in] copy The DynArray to copy from
         */
         DynArray(const DynArray<T> &copy)
-            : pool_(MemoryManager::GetPool()), capacity_(copy.size_), size_(copy.size_),
-              data_(util::allocate<T>(copy.size_, pool_))
+            : capacity_(copy.size_), size_(copy.size_)
         {
+            data_ = new T[size_];
             // Copy over value
             std::copy(copy.cbegin(), copy.cend(), begin());
         }
@@ -224,7 +203,7 @@ namespace seal
         @param[in] source The DynArray to move from
         */
         DynArray(DynArray<T> &&source) noexcept
-            : pool_(std::move(source.pool_)), capacity_(source.capacity_), size_(source.size_),
+            : capacity_(source.capacity_), size_(source.size_),
               data_(std::move(source.data_))
         {}
 
@@ -241,7 +220,7 @@ namespace seal
         */
         SEAL_NODISCARD inline T *begin() noexcept
         {
-            return data_.get();
+            return data_;
         }
 
         /**
@@ -257,7 +236,7 @@ namespace seal
         */
         SEAL_NODISCARD inline const T *cbegin() const noexcept
         {
-            return data_.get();
+            return data_;
         }
 
         /**
@@ -391,10 +370,10 @@ namespace seal
         /**
         Returns the currently used MemoryPoolHandle.
         */
-        SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
-        {
-            return pool_;
-        }
+        // SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
+        // {
+        //     return pool_;
+        // }
 
         /**
         Releases any allocated memory to the memory pool and sets the size
@@ -404,7 +383,8 @@ namespace seal
         {
             capacity_ = 0;
             size_ = 0;
-            data_.release();
+            // data_.release();
+            delete[] data_;
         }
 
         /**
@@ -427,9 +407,11 @@ namespace seal
             std::size_t copy_size = std::min<>(capacity, size_);
 
             // Create new allocation and copy over value
-            auto new_data(util::allocate<T>(capacity, pool_));
-            std::copy_n(cbegin(), copy_size, new_data.get());
+            // auto new_data(util::allocate<T>(capacity, pool_));
+            T* new_data = new T[capacity];
+            std::copy_n(cbegin(), copy_size, new_data);
             std::swap(data_, new_data);
+            delete[] new_data;
 
             // Set the coeff_count and capacity
             capacity_ = capacity;
@@ -473,13 +455,15 @@ namespace seal
 
             // At this point we know for sure that size_ <= capacity_ < size so need
             // to reallocate to bigger
-            auto new_data(util::allocate<T>(size, pool_));
-            std::copy(cbegin(), cend(), new_data.get());
+            // auto new_data(util::allocate<T>(size, pool_));
+            T* new_data = new T[size];
+            std::copy(cbegin(), cend(), new_data);
             if (fill_zero)
             {
-                std::fill(new_data.get() + size_, new_data.get() + size, T(0));
+                std::fill(new_data + size_, new_data + size, T(0));
             }
             std::swap(data_, new_data);
+            delete[] new_data;
 
             // Set the coeff_count and capacity
             capacity_ = size;
@@ -535,7 +519,7 @@ namespace seal
             capacity_ = assign.capacity_;
             size_ = assign.size_;
             data_ = std::move(assign.data_);
-            pool_ = std::move(assign.pool_);
+            // pool_ = std::move(assign.pool_);
 
             return *this;
         }
@@ -548,17 +532,17 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD inline std::streamoff save_size(
-            compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            std::size_t members_size = Serialization::ComprSizeEstimate(
-                util::add_safe(
-                    sizeof(std::uint64_t), // size_
-                    util::mul_safe(size_, sizeof(T))), // data_
-                compr_mode);
+        // SEAL_NODISCARD inline std::streamoff save_size(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     std::size_t members_size = Serialization::ComprSizeEstimate(
+        //         util::add_safe(
+        //             sizeof(std::uint64_t), // size_
+        //             util::mul_safe(size_, sizeof(T))), // data_
+        //         compr_mode);
 
-            return util::safe_cast<std::streamoff>(util::add_safe(sizeof(Serialization::SEALHeader), members_size));
-        }
+        //     return util::safe_cast<std::streamoff>(util::add_safe(sizeof(Serialization::SEALHeader), members_size));
+        // }
 
         /**
         Saves the DynArray to an output stream. The output is in binary format
@@ -571,14 +555,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&DynArray<T>::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
-                false);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&DynArray<T>::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
+        //         false);
+        // }
 
         /**
         Loads a DynArray from an input stream overwriting the current DynArray.
@@ -595,12 +579,12 @@ namespace seal
         exceeds in_size_bound, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(std::istream &stream, std::size_t in_size_bound = 0)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(
-                std::bind(&DynArray<T>::load_members, this, _1, _2, in_size_bound), stream, false);
-        }
+        // inline std::streamoff load(std::istream &stream, std::size_t in_size_bound = 0)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(
+        //         std::bind(&DynArray<T>::load_members, this, _1, _2, in_size_bound), stream, false);
+        // }
 
         /**
         Saves the DynArray to a given memory location. The output is in binary
@@ -615,14 +599,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&DynArray<T>::save_members, this, _1), save_size(compr_mode_type::none), out, size,
-                compr_mode, false);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&DynArray<T>::save_members, this, _1), save_size(compr_mode_type::none), out, size,
+        //         compr_mode, false);
+        // }
 
         /**
         Loads a DynArray from a given memory location overwriting the current
@@ -641,93 +625,94 @@ namespace seal
         or if the loaded size exceeds in_size_bound
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const seal_byte *in, std::size_t size, std::size_t in_size_bound = 0)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(
-                std::bind(&DynArray<T>::load_members, this, _1, _2, in_size_bound), in, size, false);
-        }
+        // inline std::streamoff load(const seal_byte *in, std::size_t size, std::size_t in_size_bound = 0)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(
+        //         std::bind(&DynArray<T>::load_members, this, _1, _2, in_size_bound), in, size, false);
+        // }
 
     private:
-        void save_members(std::ostream &stream) const
-        {
-            auto old_except_mask = stream.exceptions();
-            try
-            {
-                // Throw exceptions on std::ios_base::badbit and std::ios_base::failbit
-                stream.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+        // void save_members(std::ostream &stream) const
+        // {
+        //     auto old_except_mask = stream.exceptions();
+        //     try
+        //     {
+        //         // Throw exceptions on std::ios_base::badbit and std::ios_base::failbit
+        //         stream.exceptions(std::ios_base::badbit | std::ios_base::failbit);
 
-                std::uint64_t size64 = size_;
-                stream.write(reinterpret_cast<const char *>(&size64), sizeof(std::uint64_t));
-                if (size_)
-                {
-                    stream.write(
-                        reinterpret_cast<const char *>(cbegin()),
-                        util::safe_cast<std::streamsize>(util::mul_safe(size_, sizeof(T))));
-                }
-            }
-            catch (const std::ios_base::failure &)
-            {
-                stream.exceptions(old_except_mask);
-                throw std::runtime_error("I/O error");
-            }
-            catch (...)
-            {
-                stream.exceptions(old_except_mask);
-                throw;
-            }
-            stream.exceptions(old_except_mask);
-        }
+        //         std::uint64_t size64 = size_;
+        //         stream.write(reinterpret_cast<const char *>(&size64), sizeof(std::uint64_t));
+        //         if (size_)
+        //         {
+        //             stream.write(
+        //                 reinterpret_cast<const char *>(cbegin()),
+        //                 util::safe_cast<std::streamsize>(util::mul_safe(size_, sizeof(T))));
+        //         }
+        //     }
+        //     catch (const std::ios_base::failure &)
+        //     {
+        //         stream.exceptions(old_except_mask);
+        //         throw std::runtime_error("I/O error");
+        //     }
+        //     catch (...)
+        //     {
+        //         stream.exceptions(old_except_mask);
+        //         throw;
+        //     }
+        //     stream.exceptions(old_except_mask);
+        // }
 
-        void load_members(std::istream &stream, SEAL_MAYBE_UNUSED SEALVersion version, std::size_t in_size_bound)
-        {
-            auto old_except_mask = stream.exceptions();
-            try
-            {
-                // Throw exceptions on std::ios_base::badbit and std::ios_base::failbit
-                stream.exceptions(std::ios_base::badbit | std::ios_base::failbit);
+        // void load_members(std::istream &stream, SEAL_MAYBE_UNUSED SEALVersion version, std::size_t in_size_bound)
+        // {
+        //     auto old_except_mask = stream.exceptions();
+        //     try
+        //     {
+        //         // Throw exceptions on std::ios_base::badbit and std::ios_base::failbit
+        //         stream.exceptions(std::ios_base::badbit | std::ios_base::failbit);
 
-                std::uint64_t size64 = 0;
-                stream.read(reinterpret_cast<char *>(&size64), sizeof(std::uint64_t));
+        //         std::uint64_t size64 = 0;
+        //         stream.read(reinterpret_cast<char *>(&size64), sizeof(std::uint64_t));
 
-                // Check (optionally) that the size in the metadata does not exceed
-                // in_size_bound
-                if (in_size_bound && util::unsigned_gt(size64, in_size_bound))
-                {
-                    throw std::logic_error("unexpected size");
-                }
+        //         // Check (optionally) that the size in the metadata does not exceed
+        //         // in_size_bound
+        //         if (in_size_bound && util::unsigned_gt(size64, in_size_bound))
+        //         {
+        //             throw std::logic_error("unexpected size");
+        //         }
 
-                // Set new size; this is potentially unsafe if size64 was not checked
-                // against expected_size
-                resize(util::safe_cast<std::size_t>(size64));
+        //         // Set new size; this is potentially unsafe if size64 was not checked
+        //         // against expected_size
+        //         resize(util::safe_cast<std::size_t>(size64));
 
-                // Read data
-                if (size_)
-                {
-                    stream.read(
-                        reinterpret_cast<char *>(begin()),
-                        util::safe_cast<std::streamsize>(util::mul_safe(size_, sizeof(T))));
-                }
-            }
-            catch (const std::ios_base::failure &)
-            {
-                stream.exceptions(old_except_mask);
-                throw std::runtime_error("I/O error");
-            }
-            catch (...)
-            {
-                stream.exceptions(old_except_mask);
-                throw;
-            }
-            stream.exceptions(old_except_mask);
-        }
+        //         // Read data
+        //         if (size_)
+        //         {
+        //             stream.read(
+        //                 reinterpret_cast<char *>(begin()),
+        //                 util::safe_cast<std::streamsize>(util::mul_safe(size_, sizeof(T))));
+        //         }
+        //     }
+        //     catch (const std::ios_base::failure &)
+        //     {
+        //         stream.exceptions(old_except_mask);
+        //         throw std::runtime_error("I/O error");
+        //     }
+        //     catch (...)
+        //     {
+        //         stream.exceptions(old_except_mask);
+        //         throw;
+        //     }
+        //     stream.exceptions(old_except_mask);
+        // }
 
-        MemoryPoolHandle pool_;
+        // MemoryPoolHandle pool_;
 
         std::size_t capacity_ = 0;
 
         std::size_t size_ = 0;
 
-        util::Pointer<T> data_;
+        // util::Pointer<T> data_;
+        T *data_;
     };
 } // namespace seal

@@ -158,28 +158,28 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD inline std::streamoff save_size(
-            compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            std::size_t total_key_size = util::mul_safe(keys_.size(), sizeof(std::uint64_t)); // keys_dim2
-            for (auto &key_dim1 : keys_)
-            {
-                for (auto &key_dim2 : key_dim1)
-                {
-                    total_key_size = util::add_safe(
-                        total_key_size, util::safe_cast<std::size_t>(key_dim2.save_size(compr_mode_type::none)));
-                }
-            }
+        // SEAL_NODISCARD inline std::streamoff save_size(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     std::size_t total_key_size = util::mul_safe(keys_.size(), sizeof(std::uint64_t)); // keys_dim2
+        //     for (auto &key_dim1 : keys_)
+        //     {
+        //         for (auto &key_dim2 : key_dim1)
+        //         {
+        //             total_key_size = util::add_safe(
+        //                 total_key_size, util::safe_cast<std::size_t>(key_dim2.save_size(compr_mode_type::none)));
+        //         }
+        //     }
 
-            std::size_t members_size = Serialization::ComprSizeEstimate(
-                util::add_safe(
-                    sizeof(parms_id_),
-                    sizeof(std::uint64_t), // keys_dim1
-                    total_key_size),
-                compr_mode);
+        //     std::size_t members_size = Serialization::ComprSizeEstimate(
+        //         util::add_safe(
+        //             sizeof(parms_id_),
+        //             sizeof(std::uint64_t), // keys_dim1
+        //             total_key_size),
+        //         compr_mode);
 
-            return util::safe_cast<std::streamoff>(util::add_safe(sizeof(Serialization::SEALHeader), members_size));
-        }
+        //     return util::safe_cast<std::streamoff>(util::add_safe(sizeof(Serialization::SEALHeader), members_size));
+        // }
 
         /**
         Saves the KSwitchKeys instance to an output stream. The output is
@@ -193,14 +193,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&KSwitchKeys::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
-                false);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&KSwitchKeys::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
+        //         false);
+        // }
 
         /**
         Loads a KSwitchKeys from an input stream overwriting the current KSwitchKeys.
@@ -215,11 +215,11 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(std::bind(&KSwitchKeys::load_members, this, context, _1, _2), stream, false);
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(std::bind(&KSwitchKeys::load_members, this, context, _1, _2), stream, false);
+        // }
 
         /**
         Loads a KSwitchKeys from an input stream overwriting the current KSwitchKeys.
@@ -232,18 +232,18 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, std::istream &stream)
-        {
-            KSwitchKeys new_keys;
-            new_keys.pool_ = pool_;
-            auto in_size = new_keys.unsafe_load(context, stream);
-            if (!is_valid_for(new_keys, context))
-            {
-                throw std::logic_error("KSwitchKeys data is invalid");
-            }
-            std::swap(*this, new_keys);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, std::istream &stream)
+        // {
+        //     KSwitchKeys new_keys;
+        //     new_keys.pool_ = pool_;
+        //     auto in_size = new_keys.unsafe_load(context, stream);
+        //     if (!is_valid_for(new_keys, context))
+        //     {
+        //         throw std::logic_error("KSwitchKeys data is invalid");
+        //     }
+        //     std::swap(*this, new_keys);
+        //     return in_size;
+        // }
 
         /**
         Saves the KSwitchKeys instance to a given memory location. The output is
@@ -258,14 +258,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&KSwitchKeys::save_members, this, _1), save_size(compr_mode_type::none), out, size,
-                compr_mode, false);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&KSwitchKeys::save_members, this, _1), save_size(compr_mode_type::none), out, size,
+        //         compr_mode, false);
+        // }
 
         /**
         Loads a KSwitchKeys from a given memory location overwriting the current
@@ -283,11 +283,11 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(std::bind(&KSwitchKeys::load_members, this, context, _1, _2), in, size, false);
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(std::bind(&KSwitchKeys::load_members, this, context, _1, _2), in, size, false);
+        // }
 
         /**
         Loads a KSwitchKeys from a given memory location overwriting the current
@@ -304,18 +304,18 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            KSwitchKeys new_keys;
-            new_keys.pool_ = pool_;
-            auto in_size = new_keys.unsafe_load(context, in, size);
-            if (!is_valid_for(new_keys, context))
-            {
-                throw std::logic_error("KSwitchKeys data is invalid");
-            }
-            std::swap(*this, new_keys);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     KSwitchKeys new_keys;
+        //     new_keys.pool_ = pool_;
+        //     auto in_size = new_keys.unsafe_load(context, in, size);
+        //     if (!is_valid_for(new_keys, context))
+        //     {
+        //         throw std::logic_error("KSwitchKeys data is invalid");
+        //     }
+        //     std::swap(*this, new_keys);
+        //     return in_size;
+        // }
 
         /**
         Returns the currently used MemoryPoolHandle.

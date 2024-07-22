@@ -19,7 +19,7 @@ namespace seal
         SEAL_NODISCARD std::string uint_to_hex_string(const std::uint64_t *value, std::size_t uint64_count);
 
         SEAL_NODISCARD std::string uint_to_dec_string(
-            const std::uint64_t *value, std::size_t uint64_count, MemoryPool &pool);
+            const std::uint64_t *value, std::size_t uint64_count);
 
         inline void hex_string_to_uint(
             const char *hex_string, int char_count, std::size_t uint64_count, std::uint64_t *result)
@@ -62,9 +62,9 @@ namespace seal
             }
         }
 
-        SEAL_NODISCARD inline auto allocate_uint(std::size_t uint64_count, MemoryPool &pool)
+        SEAL_NODISCARD inline auto allocate_uint(std::size_t uint64_count)
         {
-            return allocate<std::uint64_t>(uint64_count, pool);
+            return allocate<std::uint64_t>(uint64_count);
         }
 
         inline void set_zero_uint(std::size_t uint64_count, std::uint64_t *result)
@@ -78,14 +78,14 @@ namespace seal
             std::fill_n(result, uint64_count, std::uint64_t(0));
         }
 
-        SEAL_NODISCARD inline auto allocate_zero_uint(std::size_t uint64_count, MemoryPool &pool)
+        SEAL_NODISCARD inline auto allocate_zero_uint(std::size_t uint64_count)
         {
-            auto result(allocate_uint(uint64_count, pool));
+            auto result(allocate_uint(uint64_count));
             set_zero_uint(uint64_count, result.get());
             return result;
 
             // The following looks better but seems to yield worse results.
-            // return allocate<std::uint64_t>(uint64_count, pool, std::uint64_t(0));
+            return allocate<std::uint64_t>(uint64_count, std::uint64_t(0));
         }
 
         inline void set_uint(std::uint64_t value, std::size_t uint64_count, std::uint64_t *result)
@@ -371,8 +371,7 @@ namespace seal
         }
 
         SEAL_NODISCARD inline auto duplicate_uint_if_needed(
-            const std::uint64_t *input, std::size_t uint64_count, std::size_t new_uint64_count, bool force,
-            MemoryPool &pool)
+            const std::uint64_t *input, std::size_t uint64_count, std::size_t new_uint64_count, bool force)
         {
 #ifdef SEAL_DEBUG
             if (!input && uint64_count)
@@ -385,7 +384,7 @@ namespace seal
                 return ConstPointer<std::uint64_t>::Aliasing(input);
             }
 
-            auto allocation(allocate_uint(new_uint64_count, pool));
+            auto allocation(allocate_uint(new_uint64_count));
             set_uint(input, uint64_count, new_uint64_count, allocation.get());
             return ConstPointer<std::uint64_t>(std::move(allocation));
         }

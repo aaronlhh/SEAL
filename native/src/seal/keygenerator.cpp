@@ -90,7 +90,7 @@ namespace seal
         sk_generated_ = true;
     }
 
-    PublicKey KeyGenerator::generate_pk(bool save_seed) const
+    PublicKey KeyGenerator::generate_pk(bool save_seed = false) const
     {
         if (!sk_generated_)
         {

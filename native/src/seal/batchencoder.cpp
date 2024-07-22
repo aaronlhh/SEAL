@@ -36,7 +36,7 @@ namespace seal
         slots_ = context_data.parms().poly_modulus_degree();
 
         // Reserve space for all of the primitive roots
-        roots_of_unity_ = allocate_uint(slots_, pool_);
+        roots_of_unity_ = allocate_uint(slots_);
 
         // Fill the vector of roots of unity with all distinct odd powers of generator.
         // These are all the primitive (2*slots_)-th roots of unity in integers modulo
@@ -64,7 +64,7 @@ namespace seal
     void BatchEncoder::populate_matrix_reps_index_map()
     {
         int logn = get_power_of_two(slots_);
-        matrix_reps_index_map_ = allocate<size_t>(slots_, pool_);
+        matrix_reps_index_map_ = allocate<size_t>(slots_);
 
         // Copy from the matrix to the value vectors
         size_t row_size = slots_ >> 1;
@@ -298,7 +298,7 @@ namespace seal
         // Never include the leading zero coefficient (if present)
         size_t plain_coeff_count = min(plain.coeff_count(), slots_);
 
-        auto temp_dest(allocate_uint(slots_, pool));
+        auto temp_dest(allocate_uint(slots_));
 
         // Make a copy of poly
         set_uint(plain.data(), plain_coeff_count, temp_dest.get());
@@ -338,7 +338,7 @@ namespace seal
         // Never include the leading zero coefficient (if present)
         size_t plain_coeff_count = min(plain.coeff_count(), slots_);
 
-        auto temp_dest(allocate_uint(slots_, pool));
+        auto temp_dest(allocate_uint(slots_));
 
         // Make a copy of poly
         set_uint(plain.data(), plain_coeff_count, temp_dest.get());
@@ -383,7 +383,7 @@ namespace seal
         // Never include the leading zero coefficient (if present)
         size_t plain_coeff_count = min(plain.coeff_count(), slots_);
 
-        auto temp_dest(allocate_uint(slots_, pool));
+        auto temp_dest(allocate_uint(slots_));
 
         // Make a copy of poly
         set_uint(plain.data(), plain_coeff_count, temp_dest.get());
@@ -425,7 +425,7 @@ namespace seal
         // Never include the leading zero coefficient (if present)
         size_t plain_coeff_count = min(plain.coeff_count(), slots_);
 
-        auto temp_dest(allocate_uint(slots_, pool));
+        auto temp_dest(allocate_uint(slots_));
 
         // Make a copy of poly
         set_uint(plain.data(), plain_coeff_count, temp_dest.get());

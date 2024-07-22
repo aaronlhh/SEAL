@@ -17,7 +17,7 @@ set(SEAL_SOURCE_FILES ${SEAL_SOURCE_FILES}
     ${CMAKE_CURRENT_LIST_DIR}/modulus.cpp
     ${CMAKE_CURRENT_LIST_DIR}/plaintext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/randomgen.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/serialization.cpp
+    # ${CMAKE_CURRENT_LIST_DIR}/serialization.cpp
     ${CMAKE_CURRENT_LIST_DIR}/valcheck.cpp
 )
 
@@ -45,8 +45,8 @@ install(
         ${CMAKE_CURRENT_LIST_DIR}/relinkeys.h
         ${CMAKE_CURRENT_LIST_DIR}/seal.h
         ${CMAKE_CURRENT_LIST_DIR}/secretkey.h
-        ${CMAKE_CURRENT_LIST_DIR}/serializable.h
-        ${CMAKE_CURRENT_LIST_DIR}/serialization.h
+        # ${CMAKE_CURRENT_LIST_DIR}/serializable.h
+        # ${CMAKE_CURRENT_LIST_DIR}/serialization.h
         ${CMAKE_CURRENT_LIST_DIR}/valcheck.h
         ${CMAKE_CURRENT_LIST_DIR}/version.h
     DESTINATION

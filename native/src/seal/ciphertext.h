@@ -63,7 +63,7 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        Ciphertext(MemoryPoolHandle pool = MemoryManager::GetPool()) : data_(std::move(pool))
+        Ciphertext()
         {}
 
         /**
@@ -76,8 +76,7 @@ namespace seal
         @throws std::invalid_argument if the encryption parameters are not valid
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit Ciphertext(const SEALContext &context, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : data_(std::move(pool))
+        explicit Ciphertext(const SEALContext &context)
         {
             // Allocate memory but don't resize
             reserve(context, 2);
@@ -98,8 +97,7 @@ namespace seal
         @throws std::invalid_argument if pool is uninitialized
         */
         explicit Ciphertext(
-            const SEALContext &context, parms_id_type parms_id, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : data_(std::move(pool))
+            const SEALContext &context, parms_id_type parms_id)
         {
             // Allocate memory but don't resize
             reserve(context, parms_id, 2);
@@ -122,9 +120,7 @@ namespace seal
         @throws std::invalid_argument if pool is uninitialized
         */
         explicit Ciphertext(
-            const SEALContext &context, parms_id_type parms_id, std::size_t size_capacity,
-            MemoryPoolHandle pool = MemoryManager::GetPool())
-            : data_(std::move(pool))
+            const SEALContext &context, parms_id_type parms_id, std::size_t size_capacity)
         {
             // Allocate memory but don't resize
             reserve(context, parms_id, size_capacity);
@@ -151,10 +147,10 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        Ciphertext(const Ciphertext &copy, MemoryPoolHandle pool) : Ciphertext(std::move(pool))
-        {
-            *this = copy;
-        }
+        // Ciphertext(const Ciphertext &copy)
+        // {
+        //     *this = copy;
+        // }
 
         /**
         Allocates enough memory to accommodate the backing array of a ciphertext
@@ -463,7 +459,7 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD std::streamoff save_size(compr_mode_type compr_mode = Serialization::compr_mode_default) const;
+        // SEAL_NODISCARD std::streamoff save_size(compr_mode_type compr_mode = Serialization::compr_mode_default) const;
 
         /**
         Saves the ciphertext to an output stream. The output is in binary format
@@ -476,14 +472,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&Ciphertext::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
-                false);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&Ciphertext::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
+        //         false);
+        // }
 
         /**
         Loads a ciphertext from an input stream overwriting the current ciphertext.
@@ -498,11 +494,11 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(std::bind(&Ciphertext::load_members, this, context, _1, _2), stream, false);
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(std::bind(&Ciphertext::load_members, this, context, _1, _2), stream, false);
+        // }
 
         /**
         Loads a ciphertext from an input stream overwriting the current ciphertext.
@@ -515,17 +511,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, std::istream &stream)
-        {
-            Ciphertext new_data(pool());
-            auto in_size = new_data.unsafe_load(context, stream);
-            if (!is_valid_for(new_data, context))
-            {
-                throw std::logic_error("ciphertext data is invalid");
-            }
-            std::swap(*this, new_data);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, std::istream &stream)
+        // {
+        //     Ciphertext new_data(pool());
+        //     auto in_size = new_data.unsafe_load(context, stream);
+        //     if (!is_valid_for(new_data, context))
+        //     {
+        //         throw std::logic_error("ciphertext data is invalid");
+        //     }
+        //     std::swap(*this, new_data);
+        //     return in_size;
+        // }
 
         /**
         Saves the ciphertext to a given memory location. The output is in binary
@@ -540,14 +536,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&Ciphertext::save_members, this, _1), save_size(compr_mode_type::none), out, size, compr_mode,
-                false);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&Ciphertext::save_members, this, _1), save_size(compr_mode_type::none), out, size, compr_mode,
+        //         false);
+        // }
 
         /**
         Loads a ciphertext from a given memory location overwriting the current
@@ -565,11 +561,11 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(std::bind(&Ciphertext::load_members, this, context, _1, _2), in, size, false);
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(std::bind(&Ciphertext::load_members, this, context, _1, _2), in, size, false);
+        // }
 
         /**
         Loads a ciphertext from a given memory location overwriting the current
@@ -586,17 +582,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            Ciphertext new_data(pool());
-            auto in_size = new_data.unsafe_load(context, in, size);
-            if (!is_valid_for(new_data, context))
-            {
-                throw std::logic_error("ciphertext data is invalid");
-            }
-            std::swap(*this, new_data);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     Ciphertext new_data(pool());
+        //     auto in_size = new_data.unsafe_load(context, in, size);
+        //     if (!is_valid_for(new_data, context))
+        //     {
+        //         throw std::logic_error("ciphertext data is invalid");
+        //     }
+        //     std::swap(*this, new_data);
+        //     return in_size;
+        // }
 
         /**
         Returns whether the ciphertext is in NTT form.
@@ -671,10 +667,10 @@ namespace seal
         /**
         Returns the currently used MemoryPoolHandle.
         */
-        SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
-        {
-            return data_.pool();
-        }
+        // SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
+        // {
+        //     return data_.pool();
+        // }
 
         /**
         Enables access to private members of seal::Ciphertext for SEAL_C.
@@ -687,11 +683,11 @@ namespace seal
 
         void resize_internal(std::size_t size, std::size_t poly_modulus_degree, std::size_t coeff_modulus_size);
 
-        void expand_seed(const SEALContext &context, const UniformRandomGeneratorInfo &prng_info, SEALVersion version);
+        // void expand_seed(const SEALContext &context, const UniformRandomGeneratorInfo &prng_info, SEALVersion version);
 
-        void save_members(std::ostream &stream) const;
+        // void save_members(std::ostream &stream) const;
 
-        void load_members(const SEALContext &context, std::istream &stream, SEALVersion version);
+        // void load_members(const SEALContext &context, std::istream &stream, SEALVersion version);
 
         inline bool has_seed_marker() const noexcept
         {

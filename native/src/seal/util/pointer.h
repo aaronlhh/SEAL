@@ -1218,10 +1218,11 @@ namespace seal
             typename T_, typename... Args,
             typename = std::enable_if_t<std::is_standard_layout<
                 typename std::remove_cv<typename std::remove_reference<T_>::type>::type>::value>>
-        SEAL_NODISCARD inline auto allocate(MemoryPool &pool, Args &&... args)
+        SEAL_NODISCARD inline auto allocate(Args &&... args)
         {
             using T = typename std::remove_cv<typename std::remove_reference<T_>::type>::type;
-            return Pointer<T>(pool.get_for_byte_count(sizeof(T)), std::forward<Args>(args)...);
+            // return Pointer<T>(pool.get_for_byte_count(sizeof(T)), std::forward<Args>(args)...);
+            return std::make_unique<T>(std::forward<Args>(args)...);
         }
 
         // Allocate array of elements
@@ -1229,10 +1230,19 @@ namespace seal
             typename T_, typename... Args,
             typename = std::enable_if_t<std::is_standard_layout<
                 typename std::remove_cv<typename std::remove_reference<T_>::type>::type>::value>>
-        SEAL_NODISCARD inline auto allocate(std::size_t count, MemoryPool &pool, Args &&... args)
+        SEAL_NODISCARD inline auto allocate(std::size_t count, Args &&... args)
         {
             using T = typename std::remove_cv<typename std::remove_reference<T_>::type>::type;
-            return Pointer<T>(pool.get_for_byte_count(mul_safe(count, sizeof(T))), std::forward<Args>(args)...);
+            // return Pointer<T>(pool.get_for_byte_count(mul_safe(count, sizeof(T))), std::forward<Args>(args)...);
+            // Allocate memory for the array using std::unique_ptr
+            std::unique_ptr<T[]> result(new T[count]);
+
+            // Construct each element in the allocated memory
+            for (std::size_t i = 0; i < count; ++i) {
+                new (&result[i]) T(std::forward<Args>(args)...);
+            }
+
+            return result;
         }
 
         // Allocate and copy a range of elements

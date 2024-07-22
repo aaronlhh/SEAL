@@ -64,7 +64,7 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        Plaintext(MemoryPoolHandle pool = MemoryManager::GetPool()) : data_(std::move(pool))
+        Plaintext()
         {}
 
         /**
@@ -78,8 +78,8 @@ namespace seal
         @throws std::invalid_argument if coeff_count is negative
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit Plaintext(std::size_t coeff_count, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : coeff_count_(coeff_count), data_(coeff_count_, std::move(pool))
+        explicit Plaintext(std::size_t coeff_count)
+            : coeff_count_(coeff_count), data_(coeff_count_)
         {}
 
         /**
@@ -95,8 +95,8 @@ namespace seal
         @throws std::invalid_argument if pool is uninitialized
         */
         explicit Plaintext(
-            std::size_t capacity, std::size_t coeff_count, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : coeff_count_(coeff_count), data_(capacity, coeff_count_, std::move(pool))
+            std::size_t capacity, std::size_t coeff_count)
+            : coeff_count_(coeff_count), data_(capacity, coeff_count_)
         {}
 #ifdef SEAL_USE_MSGSL
         /**
@@ -111,9 +111,8 @@ namespace seal
         @throws std::invalid_argument if pool is uninitialized
         */
         explicit Plaintext(
-            gsl::span<const pt_coeff_type> coeffs, std::size_t capacity,
-            MemoryPoolHandle pool = MemoryManager::GetPool())
-            : coeff_count_(coeffs.size()), data_(coeffs, capacity, std::move(pool))
+            gsl::span<const pt_coeff_type> coeffs, std::size_t capacity)
+            : coeff_count_(coeffs.size()), data_(coeffs, capacity)
         {}
 
         /**
@@ -125,8 +124,8 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        explicit Plaintext(gsl::span<const pt_coeff_type> coeffs, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : coeff_count_(coeffs.size()), data_(coeffs, std::move(pool))
+        explicit Plaintext(gsl::span<const pt_coeff_type> coeffs)
+            : coeff_count_(coeffs.size())
         {}
 #endif
         /**
@@ -157,8 +156,7 @@ namespace seal
         format
         @throws std::invalid_argument if pool is uninitialized
         */
-        Plaintext(const std::string &hex_poly, MemoryPoolHandle pool = MemoryManager::GetPool())
-            : data_(std::move(pool))
+        Plaintext(const std::string &hex_poly)
         {
             operator=(hex_poly);
         }
@@ -184,10 +182,10 @@ namespace seal
         @param[in] pool The MemoryPoolHandle pointing to a valid memory pool
         @throws std::invalid_argument if pool is uninitialized
         */
-        Plaintext(const Plaintext &copy, MemoryPoolHandle pool) : Plaintext(std::move(pool))
-        {
-            *this = copy;
-        }
+        // Plaintext(const Plaintext &copy) : Plaintext()
+        // {
+        //     *this = copy;
+        // }
 
         /**
         Allocates enough memory to accommodate the backing array of a plaintext
@@ -584,18 +582,18 @@ namespace seal
         @throws std::invalid_argument if the compression mode is not supported
         @throws std::logic_error if the size does not fit in the return type
         */
-        SEAL_NODISCARD inline std::streamoff save_size(
-            compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            std::size_t members_size = Serialization::ComprSizeEstimate(
-                util::add_safe(
-                    sizeof(parms_id_),
-                    sizeof(std::uint64_t), // coeff_count_
-                    sizeof(scale_), util::safe_cast<std::size_t>(data_.save_size(compr_mode_type::none))),
-                compr_mode);
+        // SEAL_NODISCARD inline std::streamoff save_size(
+        //     compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     std::size_t members_size = Serialization::ComprSizeEstimate(
+        //         util::add_safe(
+        //             sizeof(parms_id_),
+        //             sizeof(std::uint64_t), // coeff_count_
+        //             sizeof(scale_), util::safe_cast<std::size_t>(data_.save_size(compr_mode_type::none))),
+        //         compr_mode);
 
-            return util::safe_cast<std::streamoff>(util::add_safe(sizeof(Serialization::SEALHeader), members_size));
-        }
+        //     return util::safe_cast<std::streamoff>(util::add_safe(sizeof(Serialization::SEALHeader), members_size));
+        // }
 
         /**
         Saves the plaintext to an output stream. The output is in binary format
@@ -608,14 +606,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&Plaintext::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
-                false);
-        }
+        // inline std::streamoff save(
+        //     std::ostream &stream, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&Plaintext::save_members, this, _1), save_size(compr_mode_type::none), stream, compr_mode,
+        //         false);
+        // }
 
         /**
         Loads a plaintext from an input stream overwriting the current plaintext.
@@ -630,11 +628,11 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(std::bind(&Plaintext::load_members, this, context, _1, _2), stream, false);
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, std::istream &stream)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(std::bind(&Plaintext::load_members, this, context, _1, _2), stream, false);
+        // }
 
         /**
         Loads a plaintext from an input stream overwriting the current plaintext.
@@ -647,17 +645,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, std::istream &stream)
-        {
-            Plaintext new_data(pool());
-            auto in_size = new_data.unsafe_load(context, stream);
-            if (!is_valid_for(new_data, context))
-            {
-                throw std::logic_error("Plaintext data is invalid");
-            }
-            std::swap(*this, new_data);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, std::istream &stream)
+        // {
+        //     Plaintext new_data(pool());
+        //     auto in_size = new_data.unsafe_load(context, stream);
+        //     if (!is_valid_for(new_data, context))
+        //     {
+        //         throw std::logic_error("Plaintext data is invalid");
+        //     }
+        //     std::swap(*this, new_data);
+        //     return in_size;
+        // }
 
         /**
         Saves the plaintext to a given memory location. The output is in binary
@@ -672,14 +670,14 @@ namespace seal
         compression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff save(
-            seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
-        {
-            using namespace std::placeholders;
-            return Serialization::Save(
-                std::bind(&Plaintext::save_members, this, _1), save_size(compr_mode_type::none), out, size, compr_mode,
-                false);
-        }
+        // inline std::streamoff save(
+        //     seal_byte *out, std::size_t size, compr_mode_type compr_mode = Serialization::compr_mode_default) const
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Save(
+        //         std::bind(&Plaintext::save_members, this, _1), save_size(compr_mode_type::none), out, size, compr_mode,
+        //         false);
+        // }
 
         /**
         Loads a plaintext from a given memory location overwriting the current
@@ -697,11 +695,11 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            using namespace std::placeholders;
-            return Serialization::Load(std::bind(&Plaintext::load_members, this, context, _1, _2), in, size, false);
-        }
+        // inline std::streamoff unsafe_load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     using namespace std::placeholders;
+        //     return Serialization::Load(std::bind(&Plaintext::load_members, this, context, _1, _2), in, size, false);
+        // }
 
         /**
         Loads a plaintext from an input stream overwriting the current plaintext.
@@ -717,17 +715,17 @@ namespace seal
         Microsoft SEAL, if the loaded data is invalid, or if decompression failed
         @throws std::runtime_error if I/O operations failed
         */
-        inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
-        {
-            Plaintext new_data(pool());
-            auto in_size = new_data.unsafe_load(context, in, size);
-            if (!is_valid_for(new_data, context))
-            {
-                throw std::logic_error("Plaintext data is invalid");
-            }
-            std::swap(*this, new_data);
-            return in_size;
-        }
+        // inline std::streamoff load(const SEALContext &context, const seal_byte *in, std::size_t size)
+        // {
+        //     Plaintext new_data(pool());
+        //     auto in_size = new_data.unsafe_load(context, in, size);
+        //     if (!is_valid_for(new_data, context))
+        //     {
+        //         throw std::logic_error("Plaintext data is invalid");
+        //     }
+        //     std::swap(*this, new_data);
+        //     return in_size;
+        // }
 
         /**
         Returns whether the plaintext is in NTT form.
@@ -778,10 +776,10 @@ namespace seal
         /**
         Returns the currently used MemoryPoolHandle.
         */
-        SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
-        {
-            return data_.pool();
-        }
+        // SEAL_NODISCARD inline MemoryPoolHandle pool() const noexcept
+        // {
+        //     return data_.pool();
+        // }
 
         /**
         Enables access to private members of seal::Plaintext for SEAL_C.
@@ -789,9 +787,9 @@ namespace seal
         struct PlaintextPrivateHelper;
 
     private:
-        void save_members(std::ostream &stream) const;
+        // void save_members(std::ostream &stream) const;
 
-        void load_members(const SEALContext &context, std::istream &stream, SEALVersion version);
+        // void load_members(const SEALContext &context, std::istream &stream, SEALVersion version);
 
         parms_id_type parms_id_ = parms_id_zero;
 

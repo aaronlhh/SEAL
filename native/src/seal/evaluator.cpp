@@ -1230,7 +1230,7 @@ namespace seal
         size_t coeff_count = next_parms.poly_modulus_degree();
         size_t next_coeff_modulus_size = next_parms.coeff_modulus().size();
 
-        Ciphertext encrypted_copy(pool);
+        Ciphertext encrypted_copy;
         encrypted_copy = encrypted;
 
         switch (next_parms.scheme())
@@ -1672,7 +1672,7 @@ namespace seal
         vector<Ciphertext> product_vec;
         for (size_t i = 0; i < encrypteds.size() - 1; i += 2)
         {
-            Ciphertext temp(context_, context_data.parms_id(), pool);
+            Ciphertext temp(context_, context_data.parms_id());
             if (encrypteds[i].data() == encrypteds[i + 1].data())
             {
                 square(encrypteds[i], temp);
@@ -1692,7 +1692,7 @@ namespace seal
         // Repeatedly multiply and add to the back of the vector until the end is reached
         for (size_t i = 0; i < product_vec.size() - 1; i += 2)
         {
-            Ciphertext temp(context_, context_data.parms_id(), pool);
+            Ciphertext temp(context_, context_data.parms_id());
             multiply(product_vec[i], product_vec[i + 1], temp);
             relinearize_inplace(temp, relin_keys, pool);
             product_vec.emplace_back(std::move(temp));

@@ -131,7 +131,7 @@ namespace seal
                 auto rns_tool = prev_context_data.rns_tool();
 
                 // Zero encryption without modulus switching
-                Ciphertext temp(pool);
+                Ciphertext temp;
                 util::encrypt_zero_asymmetric(public_key_, context_, prev_parms_id, is_ntt_form, temp);
 
                 // Modulus switching
